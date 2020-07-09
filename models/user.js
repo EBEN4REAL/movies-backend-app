@@ -23,30 +23,30 @@ const userSchema = mongoose.Schema({
     }
 })
 
-userSchema.pre('save', (next) => {
-    let user = this;
-    if(user.isModified('password')){  
-        bcrypt.genSalt(SALT,  (err, salt) => {
-            if (err) return next(err);
-            bcrypt.hash(user.password, salt,  (err, hashed) => {
-                if (err) return next(err);
-                user.password = hashed;
-                next();
-            })
-        })
-    }
-    else{
-        next();
-    }
-})
+// userSchema.pre('save', (next) => {
+//     let user = this;
+//     if(user.isModified('password')){  
+//         bcrypt.genSalt(SALT,  (err, salt) => {
+//             if (err) return next(err);
+//             bcrypt.hash(user.password, salt,  (err, hashed) => {
+//                 if (err) return next(err);
+//                 user.password = hashed;
+//                 next();
+//             })
+//         })
+//     }
+//     else{
+//         next();
+//     }
+// })
 
-userSchema.methods.comparePassword = function(candidatePassword, callback){
-    bcrypt.compare(candidatePassword, this.password, function(err, isMatch){
-        if(err) return callback(err);
-        callback(null, isMatch);
+// userSchema.methods.comparePassword = function(candidatePassword, callback){
+//     bcrypt.compare(candidatePassword, this.password, function(err, isMatch){
+//         if(err) return callback(err);
+//         callback(null, isMatch);
 
-    });
-}
+//     });
+// }
 // userSchema.methods.generateToken = function(callback){
 //     let user = this;
 //     let token = jwt.sign(user._id.toHexString(), process.env.SECRET);

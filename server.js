@@ -1,18 +1,11 @@
 const express = require('express');
-
 const router = express.Router()
-
 const bodyParser = require('body-parser');
-
 const cookieParser = require('cookie-parser');
-
 const app = express();  
-
 const mongoose = require('mongoose');
-
 require('dotenv').config();
-
-
+const cors = require("cors")
 mongoose.Promise = global.Promise;
 mongoose.connect(process.env.MONGODB_URI, {
     useNewUrlParser: true
@@ -36,7 +29,9 @@ app.get('/users' , (req, res) => {
     })
 }) 
 
-
+app.get('/' , (req, res) => {
+    res.send("HEllo there");
+}) 
 
 const port = process.env.PORT || 3002;
 
