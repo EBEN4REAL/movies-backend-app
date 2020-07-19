@@ -18,20 +18,41 @@ app.use(bodyParser.urlencoded({extended:true}));
 app.use(bodyParser.json());
 app.use(cookieParser());
 
-// Models
+// ============================
+//      Models
+// ============================
 const {User} = require('./models/user');
 
 
-app.get('/users' , (req, res) => {
-    User.find((err, users) => {
-        if(err) return res.status(400).send(err);
-        res.status(200).send(users)
+app.post('/api/users/register' , (req,res) => {
+    console.log(req.body);
+    const user = new User(req.body);
+    user.save((err,doc) => {
+        if(err) return res.json({success: false, err: err});
+        res.status(200).json({
+            success: true,
+            userdata: doc
+        })
     })
-}) 
+})
 
-app.get('/' , (req, res) => {
-    res.send("HEllo there");
-}) 
+app.post('/api/users/login', (req, res) => {
+    User.findOne({email: req.body.email}, (err,user) => {
+        if(!user) return res.json({status: false, message: 'Auth Failed, Email not found'})
+
+        user.comparePassword(req.body.password, (err,isMatch) => {
+            if(!isMatch){
+                return res.json({Status:false, message: "Invalid Login details"});
+            }
+            user.generateToken((err, user) => {
+                if (err) return res.status(400).send(err);
+                res.cookie('yts_auth', user.token).status(200).json({
+                    loginSuccess: true
+                })
+            })
+        });
+    });
+});
 
 const port = process.env.PORT || 3002;
 
