@@ -21,34 +21,29 @@ const userSchema = mongoose.Schema({
         type: String
     }
 })
-
-userSchema.pre('save', (next) => {
+userSchema.pre("save", function (next) {
     let user = this;
-    if(user.isModified('password')){  
-        bcrypt.genSalt(SALT,  (err, salt) => {
+    if (!user.isModified('password')) return next();
+    bcrypt.genSalt(SALT, function (err, salt) {
+        if (err) return next(err);
+        bcrypt.hash(user.password, salt, function (err, hash) {
             if (err) return next(err);
-            bcrypt.hash(user.password, salt,  (err, hashed) => {
-                if (err) return next(err);
-                user.password = hashed;
-                next();
-            })
+            user.password = hash;
+            next();
         })
-    }
-    else{
-        next();
-    }
-})
+    })
+});
 
 userSchema.methods.comparePassword = function(userPassword, callback){
     let user = this;
-    bcrypt.compare(user.password, userPassword, function(err, isMatch){
-        console.log('candidate =>' +  userPassword);
-        console.log('candidate =>' +  user.password);
+    console.log(userPassword,user.password );
+    bcrypt.compare(userPassword, user.password,  function(err, isMatch){
         console.log(isMatch);
         if(err) return callback(err);
         callback(null, isMatch);
 
     });
+   
 }
 
 
