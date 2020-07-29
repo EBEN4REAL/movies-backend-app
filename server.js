@@ -6,7 +6,7 @@ const  bcrypt = require('bcryptjs');
 const app = express();  
 const mongoose = require('mongoose');
 require('dotenv').config();
-const cors = require("cors")
+const cors = require("cors");
 mongoose.Promise = global.Promise;
 mongoose.connect(process.env.MONGODB_URI, {
     useNewUrlParser: true
@@ -18,6 +18,7 @@ mongoose.set('useCreateIndex', true);
 app.use(bodyParser.urlencoded({extended:true}));
 app.use(bodyParser.json());
 app.use(cookieParser());
+app.use(cors());
 
 
 // ============================
@@ -34,6 +35,11 @@ const {User} = require('./models/user');
 
 app.post('/api/users/register' , (req,res) => {
     console.log(req.body);
+    User.findOne({email: req.body.email}, (err, user) => {
+        if(user) {
+            return res.json({status: "Failed", message: "Email already exists, please try a different email"});
+        }
+    })
     const user = new User(req.body);
     user.save((err,doc) => {
         if(err) return res.json({success: false, err: err});
@@ -60,24 +66,6 @@ app.post('/api/users/login', (req, res) => {
             })
         });
     });
-    // User.findOne({email: req.body.email}, (err,user) => {
-    //     console.log(req.body.password);
-    //     console.log(user.password);
-    //     if(!user) return res.json({status: false, message: 'Auth Failed, Email not found'})
-    //     bcrypt.compare(req.body.password,user.password).then((result)=>{
-    //         if(result){
-    //             user.generateToken((err, user) => {
-    //                 if (err) return res.status(400).send(err);
-    //                 res.cookie('yts_auth', user.token).status(200).json({
-    //                     loginSuccess: true
-    //                 })
-    //             })
-    //         } else {
-    //             return res.json({Status:false, message: "Invalid Login details"});
-    //         }
-    //       })
-    //       .catch((err)=>console.error(err))
-    // });
 });
 
 app.get('/api/users/logout' , auth ,  (req,res) => {
