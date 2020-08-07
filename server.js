@@ -51,6 +51,7 @@ app.post('/api/users/register' , (req,res) => {
 })
 
 app.post('/api/users/login', (req, res) => {
+    console.log(req.body);
     User.findOne({email: req.body.email}, (err,user) => {
         if(!user) return res.json({loginSuccess: false, message: 'Auth failed, email not found'})
 
@@ -61,7 +62,8 @@ app.post('/api/users/login', (req, res) => {
             user.generateToken((err, user) => {
                 if (err) return res.status(400).send(err);
                 res.cookie('yts_auth', user.token).status(200).json({
-                    loginSuccess: true
+                    loginSuccess: true,
+                    userDetails: user
                 })
             })
         });
